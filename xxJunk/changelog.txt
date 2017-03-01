@@ -1,0 +1,4 @@
+Junk module changelog
+
+Version 1.0.1:
+ - Adding new Changelog
