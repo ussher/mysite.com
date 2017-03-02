@@ -115,7 +115,6 @@ function view_myPEZDatabase_create($_post, $_user, $_conf)
 
     // This is where you would hook in to the form with php
 
-
     // Display page with form in it
     jrCore_page_display();
 
@@ -206,12 +205,12 @@ function view_myPEZDatabase_update($_post, $_user, $_conf)
 
     // PEZDatabase Title
     $_tmp = array(
-        'name'      => 'pezdatabase_title',
-        'label'     => 3,
-        'help'      => 4,
-        'type'      => 'text',
-        'validate'  => 'printable',
-        'required'  => true
+        'name'     => 'pezdatabase_title',
+        'label'    => 3,
+        'help'     => 4,
+        'type'     => 'text',
+        'validate' => 'printable',
+        'required' => true
     );
     jrCore_form_field_create($_tmp);
 
@@ -320,7 +319,6 @@ function view_myPEZDatabase_uploadCSV($_data, $_user, $_conf, $_args, $event)
     );
     jrCore_form_create($_tmp);
 
-
     // PEZDatabase Title
     $_tmp = array(
         'name'       => "new_CSV",
@@ -335,8 +333,6 @@ function view_myPEZDatabase_uploadCSV($_data, $_user, $_conf, $_args, $event)
     );
     jrCore_form_field_create($_tmp);
 
-
-
     // Display page with form in it
     jrCore_page_display();
 
@@ -347,46 +343,57 @@ function view_myPEZDatabase_uploadCSV($_data, $_user, $_conf, $_args, $event)
 //------------------------------
 function view_myPEZDatabase_uploadCSV_save($_post, $_user, $_conf)
 {
-    /*
-    //include PHPExcel to read excel files
-    include("library/PHPExcel.php")
-
-    */
-
-    include(APP_DIR . "/modules/myPEZDatabase/contrib/PHPExcel.php");
 
     // Must be logged in
     jrUser_session_require_login();
+
+    // include PHPExcel to read excel files
+    include(APP_DIR . "/modules/myPEZDatabase/contrib/PHPExcel.php");
 
     // Validate all incoming posted data
     jrCore_form_validate($_post);
     jrUser_check_quota_access('myPEZDatabase');
 
-    // YOUR FUNCTION HERE
     // save files here
+    $ods_file = jrCore_get_uploaded_media_files('myPEZDatabase', 'new_CSV');
+    if (!is_file($ods_file[0])) {
+        // thow an error here, there is no file.
+        jrCore_set_form_notice('error', "No file uploaded - please try again ");
+        jrCore_form_result();
+    }
 
-    /*
-    //get the file name of the uploaded file and initialize the reader
-    $inputFile = $_FILES['new_CSV']['tmp_name'];
+    // get the file name of the uploaded file and initialize the reader
+    $inputFile     = $ods_file[0];
     $inputFileType = PHPExcel_IOFactory::identify($inputFile);
-    $objReader = PHPExcel_IOFactory::createReader($inputFileType);
-    $objPHPExcel = $objReader->load($inputFile);
+    $objReader     = PHPExcel_IOFactory::createReader($inputFileType);
+    $objPHPExcel   = $objReader->load($inputFile);
 
-    //Get worksheet dimensions
-    $sheet = $objPHPExcel->getSheet(0);
-    $highestRow = $sheet->getHighestRow();
+    // Get worksheet dimensions
+    $sheet         = $objPHPExcel->getSheet(0);
+    $highestRow    = $sheet->getHighestRow();
     $highestColumn = $sheet->getHighestColumn();
 
-    //Loop through each row of the worksheet in turn
+    // Loop through each row of the worksheet in turn
+    $_sv = array();
     for ($row = 2; $row <= $highestRow; $row++) {
         //  Read a row of data into an array
-        $rowDataArray = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE);
-        $rowData = $rowDataArray[0]; //this will contain the data of all the cells of the row in array format
+        $rowDataArray = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, null, true, false);
+        $rowData      = $rowDataArray[0]; // this will contain the data of all the cells of the row in array format
+        $_sv[]        = array(
+            'pezdatabase_title'       => jrCore_db_escape($rowData[0]),
+            'pezdatabase_description' => jrCore_db_escape($rowData[1]),
+            'pezdatabase_something'   => jrCore_db_escape($rowData[2]),
+            'pezdatabase_other_thing' => jrCore_db_escape($rowData[3]),
+            'pezdatabase_whatever'    => jrCore_db_escape($rowData[4]),
+        );
     }
-    */
+    // key => value strucutre
+
+    jrCore_db_create_multiple_items('myPEZDatabase', $_sv);
+
     jrCore_form_delete_session();
     jrProfile_reset_cache();
-    jrCore_form_result("{$_conf['jrCore_base_url']}/{$_user['profile_url']}/{$_post['module_url']}/uploadCSV_save");
+    jrCore_form_result("{$_conf['jrCore_base_url']}/{$_user['profile_url']}/{$_post['module_url']}");
 }
 
 
