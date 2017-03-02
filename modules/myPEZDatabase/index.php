@@ -311,7 +311,7 @@ function view_myPEZDatabase_uploadCSV($_data, $_user, $_conf, $_args, $event)
     $_lang = jrUser_load_lang_strings();
 
     // Start our upload form
-    jrCore_page_banner('Upload CSV');
+    jrCore_page_banner('Upload ODS');
 
     // Form init
     $_tmp = array(
@@ -326,11 +326,11 @@ function view_myPEZDatabase_uploadCSV($_data, $_user, $_conf, $_args, $event)
         'name'       => "new_CSV",
         'type'       => 'file',
         'label'      => 'CSV File',
-        'help'       => 'Upload a CSV file to the database',
-        'text'       => 'Select CSV to Upload',
-        'extensions' => 'csv',
+        'help'       => 'Upload an ODS file to the database',
+        'text'       => 'Select ODS to Upload',
+        'extensions' => 'ods',
         'multiple'   => false,
-        'required'   => false,
+        'required'   => true,
 
     );
     jrCore_form_field_create($_tmp);
@@ -350,7 +350,11 @@ function view_myPEZDatabase_uploadCSV_save($_post, $_user, $_conf)
     /*
     //include PHPExcel to read excel files
     include("library/PHPExcel.php")
+
     */
+
+    include(APP_DIR . "/modules/myPEZDatabase/contrib/PHPExcel.php");
+
     // Must be logged in
     jrUser_session_require_login();
 
